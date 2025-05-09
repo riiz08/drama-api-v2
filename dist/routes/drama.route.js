@@ -1,0 +1,14 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const drama_controller_1 = require("../controllers/drama.controller");
+const router = (0, express_1.Router)();
+router.get("/", drama_controller_1.getAllDrama);
+router.get("/search", drama_controller_1.searchDrama);
+router.get("/trending", drama_controller_1.getDramaTrending);
+router.get("/recomended", drama_controller_1.getDramaRecomended);
+router.get("/latest-update", drama_controller_1.latestUpdate);
+router.get("/:slug", drama_controller_1.getDramaBySlug);
+router.patch("/:slug/view", drama_controller_1.dramaTrackingView);
+router.get("/scrape/:year/:month/:slug", drama_controller_1.dramaScrape);
+exports.default = router;

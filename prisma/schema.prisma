@@ -1,0 +1,49 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Drama {
+  id             String    @id @default(cuid())
+  slug           String    @unique
+  title          String
+  description    String?
+  thumbnail      String
+  tarikhTayangan String?
+  waktuSiaran    String?
+  rangkaian      String?
+  pengarah       String?
+  produksi       String?
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
+  episodes       Episode[]
+  isTrending     Boolean  @default(false)
+  isRecommended  Boolean  @default(false)
+  dramaViews     DramaView[]
+  viewCount      Int      @default(0)
+}
+
+model Episode {
+  id          String    @id @default(cuid())
+  slug        String    @unique
+  title       String
+  videoSrc    String
+  publishedAt DateTime?
+  dramaId     String
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  episodeNum  Int?
+  drama       Drama     @relation(fields: [dramaId], references: [id])
+}
+
+model DramaView {
+  id        String   @id @default(uuid())
+  drama     Drama    @relation(fields: [dramaId], references: [id])
+  dramaId   String
+  createdAt DateTime @default(now())
+}
