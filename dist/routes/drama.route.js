@@ -10,5 +10,6 @@ router.get("/recomended", drama_controller_1.getDramaRecomended);
 router.get("/latest-update", drama_controller_1.latestUpdate);
 router.get("/:slug", drama_controller_1.getDramaBySlug);
 router.patch("/:slug/view", drama_controller_1.dramaTrackingView);
+router.get("/by/:id", drama_controller_1.getDramaById);
 router.get("/scrape/:year/:month/:slug", drama_controller_1.dramaScrape);
 exports.default = router;

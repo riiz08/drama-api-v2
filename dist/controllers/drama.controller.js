@@ -36,7 +36,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.latestUpdate = exports.searchDrama = exports.getDramaRecomended = exports.dramaTrackingView = exports.getDramaTrending = exports.getDramaBySlug = exports.getAllDrama = exports.dramaScrape = void 0;
+exports.getDramaById = exports.latestUpdate = exports.searchDrama = exports.getDramaRecomended = exports.dramaTrackingView = exports.getDramaTrending = exports.getDramaBySlug = exports.getAllDrama = exports.dramaScrape = void 0;
 const cheerio = __importStar(require("cheerio"));
 const puppeteer_1 = __importDefault(require("puppeteer"));
 const image_1 = require("../libs/image");
@@ -234,6 +234,7 @@ const getDramaTrending = async (req, res) => {
     try {
         const dramas = await prisma_1.prisma.drama.findMany({
             orderBy: { viewCount: "asc" },
+            where: { isTrending: true },
             take: 10,
         });
         if (dramas.length < 1)
@@ -294,12 +295,12 @@ const getDramaRecomended = async (req, res) => {
 };
 exports.getDramaRecomended = getDramaRecomended;
 const searchDrama = async (req, res) => {
-    const { slug } = req.query;
-    if (!slug)
+    const { q } = req.query;
+    if (!q)
         return void res
             .status(400)
             .json({ success: false, message: "Invalid slug" });
-    const slugLower = String(slug)
+    const slugLower = String(q)
         .toLocaleLowerCase()
         .trim()
         .replace(/[\s\W-]+/g, "-")
@@ -316,7 +317,7 @@ const searchDrama = async (req, res) => {
         res.json({ success: true, data: drama });
     }
     catch (error) {
-        res.json({ success: false, message: error });
+        res.status(500).json({ success: false, message: error });
     }
 };
 exports.searchDrama = searchDrama;
@@ -360,7 +361,31 @@ const latestUpdate = async (req, res) => {
         });
     }
     catch (error) {
-        res.json({ success: false, message: error });
+        res.status(500).json({ success: false, message: error });
     }
 };
 exports.latestUpdate = latestUpdate;
+const getDramaById = async (req, res) => {
+    const { id } = req.params;
+    try {
+        if (!id)
+            return void res
+                .status(400)
+                .json({ success: false, message: "Invalid slug" });
+        const drama = await prisma_1.prisma.drama.findUnique({
+            where: {
+                id,
+            },
+        });
+        if (!drama)
+            return void res.status(404).json({
+                success: false,
+                message: "Drama not found",
+            });
+        res.json({ success: true, data: drama });
+    }
+    catch (error) {
+        res.status(500).json({ success: false, message: error });
+    }
+};
+exports.getDramaById = getDramaById;
