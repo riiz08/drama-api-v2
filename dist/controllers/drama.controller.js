@@ -376,6 +376,7 @@ const getDramaById = async (req, res) => {
             where: {
                 id,
             },
+            include: { episodes: true },
         });
         if (!drama)
             return void res.status(404).json({

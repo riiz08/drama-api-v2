@@ -9,6 +9,8 @@ const dramaSlugs = [
   "2025/02/dendam-seorang-madu-full-episod",
   "2025/02/keluarga-itu-full-episod",
   "2025/03/sekam-di-dada-full-episod",
+  "2025/05/nikmat-hanya-sesaat-full-episode",
+  "2025/04/aku-bukan-ustazah-2-full-episode",
 ];
 
 // Delay helper
