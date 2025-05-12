@@ -192,7 +192,11 @@ export const getDramaBySlug = async (req: Request, res: Response) => {
         slug,
       },
       include: {
-        episodes: true,
+        episodes: {
+          orderBy: {
+            episodeNum: "asc",
+          },
+        },
       },
     });
 
