@@ -34,9 +34,7 @@ export const proxy = async (req: Request, res: Response) => {
 export const proxyV2 = async (req: Request, res: Response) => {
   const targetUrl = req.query.url as string;
   if (!targetUrl) {
-    return void res
-      .status(400)
-      .json({ success: false, message: "Invalid URL" });
+    return res.status(400).json({ success: false, message: "Invalid URL" });
   }
 
   try {
@@ -57,21 +55,38 @@ export const proxyV2 = async (req: Request, res: Response) => {
         "Referrer-Policy": "strict-origin-when-cross-origin",
         "Cache-Control": "public, max-age=10800",
       },
-      responseType: "text", // 🔄 Ganti dari "stream" agar bisa diproses
+      responseType: "text",
     });
 
-    const basePath = targetUrl.substring(0, targetUrl.lastIndexOf("/") + 1); // Dapatkan prefix URL
+    const basePath = targetUrl.substring(0, targetUrl.lastIndexOf("/") + 1);
     const originalText = response.data as string;
 
-    // Rewrite semua baris .txt ke URL absolut
     const rewrittenText = originalText
       .split("\n")
-      .map((line: string) =>
-        line.trim().endsWith(".txt") ? basePath + line.trim() : line
-      )
+      .map((line: string) => {
+        const trimmed = line.trim();
+
+        // Rewrite EXT-X-MAP URI
+        if (trimmed.startsWith("#EXT-X-MAP:URI=")) {
+          return trimmed.replace(/URI="([^"]+)"/, (_, uri) => {
+            if (/^https?:\/\//.test(uri)) return `URI="${uri}"`; // sudah absolut
+            return `URI="${basePath}${uri}"`; // ubah ke absolut
+          });
+        }
+
+        // Rewrite segmen yang relatif menjadi absolut
+        if (
+          trimmed &&
+          !trimmed.startsWith("#") &&
+          !/^https?:\/\//.test(trimmed)
+        ) {
+          return `${basePath}${trimmed}`;
+        }
+
+        return line;
+      })
       .join("\n");
 
-    // Set header + kirim hasil ke client
     res.set("Content-Type", "application/vnd.apple.mpegurl");
     res.set("Cache-Control", "public, max-age=10800");
     res.send(rewrittenText);
