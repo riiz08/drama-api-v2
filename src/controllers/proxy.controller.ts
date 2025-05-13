@@ -34,7 +34,9 @@ export const proxy = async (req: Request, res: Response) => {
 export const proxyV2 = async (req: Request, res: Response) => {
   const targetUrl = req.query.url as string;
   if (!targetUrl) {
-    return res.status(400).json({ success: false, message: "Invalid URL" });
+    return void res
+      .status(400)
+      .json({ success: false, message: "Invalid URL" });
   }
 
   try {
